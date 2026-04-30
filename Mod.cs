@@ -69,10 +69,7 @@ public class Mod : ModBase // <= Do not Remove.
 
         GameInstance = new Game();
         BaseAddress = (nuint)Process.GetCurrentProcess().MainModule!.BaseAddress;
-        var thread1 = new Thread(start: () =>
-        {
-            Game.IsGameLoaded();
-        });
+        var thread1 = new Thread(start: Game.IsGameLoaded);
         thread1.Start();
 
     }
