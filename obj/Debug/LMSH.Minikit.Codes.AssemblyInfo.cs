@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LMSH.Minikit.Codes")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fbd4f11a134962bba407eb8d410cf74d04a94b5d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c7333a6e4fd925dadc473cf43c82439a400fcdb4")]
 [assembly: System.Reflection.AssemblyProductAttribute("LMSH.Minikit.Codes")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LMSH.Minikit.Codes")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
