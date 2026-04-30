@@ -22,12 +22,12 @@ public class Mod : ModBase // <= Do not Remove.
     /// Provides access to the Reloaded.Hooks API.
     /// </summary>
     /// <remarks>This is null if you remove dependency on Reloaded.SharedLib.Hooks in your mod.</remarks>
-    private readonly IReloadedHooks? _hooks;
+    public static IReloadedHooks? _hooks;
 
     /// <summary>
     /// Provides access to the Reloaded logger.
     /// </summary>
-    private readonly ILogger _logger;
+    public static ILogger? Logger;
 
     /// <summary>
     /// Entry point into the mod, instance that created this class.
@@ -44,11 +44,14 @@ public class Mod : ModBase // <= Do not Remove.
     /// </summary>
     private readonly IModConfig _modConfig;
 
+    public static Game? GameInstance;
+    public static nuint BaseAddress;
+
     public Mod(ModContext context)
     {
         _modLoader = context.ModLoader;
         _hooks = context.Hooks;
-        _logger = context.Logger;
+        Logger = context.Logger;
         _owner = context.Owner;
         _configuration = context.Configuration;
         _modConfig = context.ModConfig;
@@ -64,7 +67,14 @@ public class Mod : ModBase // <= Do not Remove.
         // If you want to implement e.g. unload support in your mod,
         // and some other neat features, override the methods in ModBase.
 
-        // TODO: Implement some mod logic
+        GameInstance = new Game();
+        BaseAddress = (nuint)Process.GetCurrentProcess().MainModule!.BaseAddress;
+        var thread1 = new Thread(start: () =>
+        {
+            Game.IsGameLoaded();
+        });
+        thread1.Start();
+
     }
 
     #region Standard Overrides
@@ -73,7 +83,7 @@ public class Mod : ModBase // <= Do not Remove.
         // Apply settings from configuration.
         // ... your code here.
         _configuration = configuration;
-        _logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
+        Logger?.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
     }
     #endregion
 

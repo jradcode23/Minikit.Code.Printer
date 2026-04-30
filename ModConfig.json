@@ -3,7 +3,7 @@
   "ModName": "LMSH.Minikit.Codes",
   "ModAuthor": "jrad",
   "ModVersion": "1.0.0",
-  "ModDescription": "Description",
+  "ModDescription": "Mode that prints out the minikit codes upon collection",
   "ModDll": "LMSH.Minikit.Codes.dll",
   "ModIcon": "Preview.png",
   "ModR2RManagedDll32": "x86/LMSH.Minikit.Codes.dll",
@@ -16,6 +16,6 @@
   "IsUniversalMod": false,
   "ModDependencies": [ "reloaded.sharedlib.hooks" ],
   "OptionalDependencies": [],
-  "SupportedAppId": [],
+  "SupportedAppId": ["legomarvel.exe"],
   "ProjectUrl": ""
 }
