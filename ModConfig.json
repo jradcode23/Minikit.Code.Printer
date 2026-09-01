@@ -1,0 +1,21 @@
+{
+  "ModId": "LPotC.Minikit.Codes",
+  "ModName": "LPotC.Minikit.Codes",
+  "ModAuthor": "jrad",
+  "ModVersion": "1.0.0",
+  "ModDescription": "Mode that prints out the minikit codes upon collection",
+  "ModDll": "LPotC.Minikit.Codes.dll",
+  "ModIcon": "Preview.png",
+  "ModR2RManagedDll32": "x86/LPotC.Minikit.Codes.dll",
+  "ModR2RManagedDll64": "x64/LPotC.Minikit.Codes.dll",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "LPotC.Minikit.Codes.ReleaseMetadata.json",
+  "PluginData": {},
+  "IsUniversalMod": false,
+  "ModDependencies": [ "reloaded.sharedlib.hooks" ],
+  "OptionalDependencies": [],
+  "SupportedAppId": ["LEGOPirates.exe", "legopirates.exe"],
+  "ProjectUrl": ""
+}
