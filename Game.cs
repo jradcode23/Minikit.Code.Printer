@@ -7,6 +7,7 @@ namespace LPotC.Minikit.Codes;
 public class Game
 {
     private uint MapID = 0;
+    private string MapName = string.Empty;
     // Used to check if the game menu is loaded before connecting and trying to set up hooks
     public static unsafe void IsGameLoaded()
     {
@@ -89,7 +90,7 @@ public class Game
             PrintToLog("Unexpected Behavior, code exceeded max length");
             return;
         }
-        PrintToLog($"Minikit Code: {currentCode}. Map ID is: {Mod.GameInstance!.MapID}");
+        PrintToLog($"Minikit Code: {currentCode}. Map ID is: {Mod.GameInstance!.MapID}. Map Name is: {Mod.GameInstance!.MapName}");
     }
 
     private static unsafe void ClearMinikitCodes()
@@ -110,6 +111,7 @@ public class Game
     private static List<IAsmHook> AsmHooks = [];
     private static IReverseWrapper<IncreaseMinikitCount> _reverseWrapOnIncreaseMinikitCount = default!;
     private static IReverseWrapper<UpdateMapID> _reverseWrapOnUpdatedMapID = default!;
+    private static IReverseWrapper<UpdateMapName> _reverseWrapOnUpdatedMapName = default!;
     public static void SetupHooks(IReloadedHooks hooks)
     {
         string[] minikitCountIncreaseHook =
@@ -133,6 +135,17 @@ public class Game
             "popfd",
         };
         AsmHooks.Add(hooks.CreateAsmHook(updateMapIDHook, (int)(Mod.BaseAddress + 0x3B1E3A), AsmHookBehaviour.ExecuteFirst).Activate()); // cause of the call, doesn't work if you run after
+
+        string[] updateMapNameHook =
+        {
+            "use32",
+            "pushfd",
+            "pushad",
+            $"{hooks.Utilities.GetAbsoluteCallMnemonics(OnUpdateMapName, out _reverseWrapOnUpdatedMapName)}",
+            "popad",
+            "popfd",
+        };
+        AsmHooks.Add(hooks.CreateAsmHook(updateMapNameHook, (int)(Mod.BaseAddress + 0x4AD683), AsmHookBehaviour.ExecuteFirst).Activate()); // cause of the call, doesn't work if you run after
     }
 
     [Function([FunctionAttribute.Register.eax],
@@ -160,5 +173,39 @@ public class Game
             PrintToLog("Hub Detected, clearing minikit codes");
             ClearMinikitCodes();
         }
+    }
+
+    [Function([FunctionAttribute.Register.eax],
+    FunctionAttribute.Register.eax, FunctionAttribute.StackCleanup.Callee)]
+    public delegate void UpdateMapName(uint eax);
+
+    private static unsafe void OnUpdateMapName(uint eax)
+    {
+        byte* FirstPointer = *(byte**)(Mod.BaseAddress + 0xB79178);
+        if (FirstPointer == null)
+        {
+            PrintToLog("Map Name Pointer 1 is null");
+            return;
+        }
+        byte* SecondPointer = *(byte**)(FirstPointer + 0x48 + eax);
+        // PrintToLog($"Update Map Name Address is 0x{(uint)SecondPointer:X}");
+        if (SecondPointer == null)
+        {
+            PrintToLog("Map Name Pointer 2 is null");
+            return;
+        }
+        string mapName = new((sbyte*)SecondPointer);
+        if (string.IsNullOrEmpty(mapName))
+        {
+            PrintToLog("Map Name is null or empty");
+            return;
+        }
+        if (mapName.Length > 32)
+        {
+            PrintToLog("Unexpected Behavior, map name exceeded max length");
+            return;
+        }
+        PrintToLog($"Map Name Updated to: {mapName}");
+        Mod.GameInstance!.MapName = mapName;
     }
 }
