@@ -2,7 +2,7 @@
   "ModId": "LPotC.Minikit.Codes",
   "ModName": "LPotC.Minikit.Codes",
   "ModAuthor": "jrad",
-  "ModVersion": "1.0.0",
+  "ModVersion": "1.1.0",
   "ModDescription": "Mode that prints out the minikit codes upon collection",
   "ModDll": "LPotC.Minikit.Codes.dll",
   "ModIcon": "Preview.png",

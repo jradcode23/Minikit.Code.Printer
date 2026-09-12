@@ -70,6 +70,7 @@ public class Mod : ModBase // <= Do not Remove.
 
         GameInstance = new Game();
         BaseAddress = (uint)Process.GetCurrentProcess().MainModule!.BaseAddress;
+        Game.PrintToLog("Mod Version: 1.1");
         var thread1 = new Thread(start: Game.IsGameLoaded);
         thread1.Start();
 

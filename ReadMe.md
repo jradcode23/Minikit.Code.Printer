@@ -45,3 +45,10 @@
 - IMPORTANT: Capitalization and spelling matters. There have been instances in other Lego games where there is an M_pup minikit and a m_pup minikit in the same level
 - IMPORTANT: If the minikit involves multiple items, i.e., break 5 objects, there may be multiple minikit codes associated with it. This is usually determined by the last item (i.e., last object broken). So to test, we will need to adjust the order of unlocking the minikit, specifically the last object.
 - IMPORTANT: If there are duplicate minikit codes in the same level, let me know. Across multiple different levels is fine, but if one level has two identical minikit codes, we need to know to research.
+- --
+## Fast Travel Instructions
+- If you don't want/need to play through the whole level, you can fast travel to a specific map assuming you know the Map ID
+- In the Hub, Open up the cheat code menu, and type in the map ID (i.e., 000014 for Port Royal A).
+    - Note you will hear the "incorrect code" sound
+- Then go into the level in freeplay and it will load you into that map.
+- IMPORTANT: Fast travel will work when you go through any loading zone. However, if you don't set up freeplay, or go to the wrong level, you will be launched into story mode or only have 1 character.

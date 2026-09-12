@@ -1,6 +1,7 @@
 using Reloaded.Hooks.Definitions;
 using Reloaded.Hooks.Definitions.Enums;
 using Reloaded.Hooks.Definitions.X86;
+using Reloaded.Memory;
 
 namespace LPotC.Minikit.Codes;
 
@@ -61,7 +62,7 @@ public class Game
         }
     }
 
-    private static void PrintToLog(string message)
+    public static void PrintToLog(string message)
     {
         Mod.Logger?.WriteLineAsync("[LPotC.Minikit.Codes] " + message);
     }
@@ -112,6 +113,9 @@ public class Game
     private static IReverseWrapper<IncreaseMinikitCount> _reverseWrapOnIncreaseMinikitCount = default!;
     private static IReverseWrapper<UpdateMapID> _reverseWrapOnUpdatedMapID = default!;
     private static IReverseWrapper<UpdateMapName> _reverseWrapOnUpdatedMapName = default!;
+    private static IReverseWrapper<OpenMenu> _reverseWrapOnOpenMenu = default!;
+    private static IReverseWrapper<EnterCheatCode> _reverseWrapOnEnterCheatCode = default!;
+    private static IReverseWrapper<WriteMapRequested> _reverseWrapOnWriteMapRequested = default!;
     public static void SetupHooks(IReloadedHooks hooks)
     {
         string[] minikitCountIncreaseHook =
@@ -145,7 +149,40 @@ public class Game
             "popad",
             "popfd",
         };
-        AsmHooks.Add(hooks.CreateAsmHook(updateMapNameHook, (int)(Mod.BaseAddress + 0x4AD683), AsmHookBehaviour.ExecuteFirst).Activate()); // cause of the call, doesn't work if you run after
+        AsmHooks.Add(hooks.CreateAsmHook(updateMapNameHook, (int)(Mod.BaseAddress + 0x4AD683), AsmHookBehaviour.ExecuteFirst).Activate());
+
+        string[] openMenuHook =
+        {
+            "use32",
+            "pushfd",
+            "pushad",
+            $"{hooks.Utilities.GetAbsoluteCallMnemonics(OnOpenMenu, out _reverseWrapOnOpenMenu)}",
+            "popad",
+            "popfd",
+        };
+        AsmHooks.Add(hooks.CreateAsmHook(openMenuHook, (int)(Mod.BaseAddress + 0x1A5DE1), AsmHookBehaviour.ExecuteFirst).Activate());
+
+        string[] enterCheatCodeHook =
+        {
+            "use32",
+            "pushfd",
+            "pushad",
+            $"{hooks.Utilities.GetAbsoluteCallMnemonics(OnEnterCheatCode, out _reverseWrapOnEnterCheatCode)}",
+            "popad",
+            "popfd",
+        };
+        AsmHooks.Add(hooks.CreateAsmHook(enterCheatCodeHook, (int)(Mod.BaseAddress + 0x421ECF), AsmHookBehaviour.ExecuteAfter).Activate());
+
+        string[] writeMapRequestedHook =
+        {
+            "use32",
+            "pushfd",
+            "pushad",
+            $"{hooks.Utilities.GetAbsoluteCallMnemonics(OnWriteMapRequested, out _reverseWrapOnWriteMapRequested)}",
+            "popad",
+            "popfd",
+        };
+        AsmHooks.Add(hooks.CreateAsmHook(writeMapRequestedHook, (int)(Mod.BaseAddress + 0x3B1E21), AsmHookBehaviour.ExecuteFirst).Activate());
     }
 
     [Function([FunctionAttribute.Register.eax],
@@ -207,5 +244,68 @@ public class Game
         }
         PrintToLog($"Map Name Updated to: {mapName}");
         Mod.GameInstance!.MapName = mapName;
+    }
+
+    [Function([FunctionAttribute.Register.edx],
+    FunctionAttribute.Register.eax, FunctionAttribute.StackCleanup.Callee)]
+    public delegate void OpenMenu(uint edx);
+    private static unsafe void OnOpenMenu(uint edx)
+    {
+        if (edx == 0x1)
+        {
+            PrintToLog($"Menu or Level Selector Open");
+            byte* menuCheatCode = (byte*)(Mod.BaseAddress + 0xB7BD88);
+            for (int i = 0; i < 6; i++)
+            {
+                *(menuCheatCode + i) = 0x1A;
+            }
+        }
+    }
+
+    private ushort MapIDRequested = 0xFFFF;
+
+    [Function(CallingConventions.Fastcall)]
+    public delegate void EnterCheatCode();
+    private static unsafe void OnEnterCheatCode()
+    {
+        PrintToLog($"Cheat Code Entered");
+        byte* menuCheatCode = (byte*)(Mod.BaseAddress + 0xB7BD88);
+        double mapCode = 0;
+        for (int i = 0; i < 6; i++)
+        {
+            byte position = Memory.Instance.Read<byte>((nuint)(menuCheatCode + i));
+            if (position >= 26 && position <= 35)
+            {
+                // Maps to 0-9
+                int value = 0 + (position - 26);
+                mapCode += value * Math.Pow(10, 5 - i);
+            }
+            else
+            {
+                mapCode += 0; // Unknown character
+            }
+        }
+        PrintToLog($"Map Code Request is: {mapCode}");
+        if (mapCode >= 0xFFFF)
+        {
+            PrintToLog("Map Code is too large and not a valid map ID");
+            return;
+        }
+        Mod.GameInstance!.MapIDRequested = (ushort)(mapCode % 1000);
+    }
+
+    [Function(CallingConventions.Cdecl)]
+    public delegate void WriteMapRequested();
+    private static unsafe void OnWriteMapRequested()
+    {
+        if (Mod.GameInstance!.MapIDRequested == 0xFFFF)
+        {
+            return;
+        }
+
+        PrintToLog($"Writing Requested Map: {Mod.GameInstance!.MapIDRequested}");
+        ushort* mapLoadingAddress = (ushort*)(Mod.BaseAddress + 0xA13FBC);
+        *mapLoadingAddress = Mod.GameInstance!.MapIDRequested;
+        Mod.GameInstance!.MapIDRequested = 0xFFFF;
     }
 }
