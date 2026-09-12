@@ -178,16 +178,14 @@ param (
     $GitHubFallbackPattern = "", # For migrating from legacy build script.
     $GitHubInheritVersionFromTag = $True, # Uses version determined from release tag as opposed to metadata file in latest release.
 
-    $GameBananaItemId = 333681, # From mod page URL.
-
     $NuGetPackageId = "LPotC.Minikit.Codes",
     $NuGetFeedUrl = "https://packages.sewer56.moe/v3/index.json",
     $NuGetAllowUnlisted = $False,
 
     ## => User: Publish Config
     $PublishGeneric    = $True,
-    $PublishNuGet      = $True,
-    $PublishGameBanana = $True
+    $PublishNuGet      = $False,
+    $PublishGameBanana = $False
 )
 
 ## => User: Publish Output

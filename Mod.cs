@@ -2,8 +2,9 @@
 using Reloaded.Mod.Interfaces;
 using LPotC.Minikit.Codes.Template;
 using LPotC.Minikit.Codes.Configuration;
-#if DEBUG
 using System.Diagnostics;
+#if DEBUG
+// using System.Diagnostics;
 #endif
 
 namespace LPotC.Minikit.Codes;
@@ -68,7 +69,7 @@ public class Mod : ModBase // <= Do not Remove.
         // and some other neat features, override the methods in ModBase.
 
         GameInstance = new Game();
-        BaseAddress = (nuint)Process.GetCurrentProcess().MainModule!.BaseAddress;
+        BaseAddress = (uint)Process.GetCurrentProcess().MainModule!.BaseAddress;
         var thread1 = new Thread(start: Game.IsGameLoaded);
         thread1.Start();
 
